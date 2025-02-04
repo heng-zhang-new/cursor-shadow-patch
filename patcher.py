@@ -65,8 +65,8 @@ sqm = input(f"\n{PURPLE}Windows SQM Id: {RESET}(leave blank = empty) ")
 data = replace(
     data,
     r'return.{0,50}\.GetStringRegKey.*?HKEY_LOCAL_MACHINE.*?MachineId.*?\|\|.*?""',
-    f'/*csp3*/"{sqm}"/*3csp*/',
-    r"/\*csp3\*/.*?/\*3csp\*/",
+    f'return/*csp3*/"{sqm}"/*3csp*/',
+    r"return/\*csp3\*/.*?/\*3csp\*/",
 )
 
 devid = randomuuid(input(f"\n{PURPLE}devDeviceId: {RESET}(leave blank = random uuid) "))
