@@ -154,8 +154,8 @@ def replace(
             print(f"{YELLOW}[WARN] Pattern <{pattern}> not found, SKIPPED!{RESET}")
             return data
 
-    data, replaced1_count = regex.subn(replace, data)
-    data, replaced2_count = patched_regex.subn(replace, data)
+    data, replaced1_count = patched_regex.subn(replace, data)
+    data, replaced2_count = regex.subn(replace, data)
     replaced_count = replaced1_count + replaced2_count
     if replaced_count != count + patched_count:
         print(
