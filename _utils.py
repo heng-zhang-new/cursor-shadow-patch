@@ -78,11 +78,11 @@ def jspath(p: str):
     return jspath
 
 
-def randomuuid(machineid: str):
-    if not machineid:
-        machineid = uuid()
-        print(machineid)
-    return machineid
+def randomuuid(randomuuid: str):
+    if not randomuuid:
+        randomuuid = uuid()
+        print(randomuuid)
+    return randomuuid
 
 
 def macaddr(macaddr: str):
@@ -138,7 +138,7 @@ def replace(
     assert isinstance(pattern, bytes)
     assert isinstance(replace, bytes)
     assert isinstance(probe, bytes)
-    print(f"> {BLUE}{pattern}{RESET} => {BLUE}{replace}{RESET}")
+    print(f"> {pattern.decode()} => {replace.decode()}")
 
     regex = re.compile(pattern, re.DOTALL)
     count = len(list(regex.finditer(data)))
