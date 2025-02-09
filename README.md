@@ -3,6 +3,6 @@
 Patch `out/main.js` to force fake machine ids.
 
 - Platform: Win32 / Darwin / Linux
-- Version: 0.45.10
+- Version: 0.45.11
 
 *Early test. Feel free to try it out :3*
