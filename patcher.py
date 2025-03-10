@@ -7,9 +7,7 @@ print(
 - Custom machine id, mac address, etc."""
 )
 
-js = jspath(
-    input(f"\n{PURPLE}Enter main.js path: {RESET}(leave blank to use default path) ")
-)
+js = jspath(input(f"\n{PURPLE}Enter main.js path: {RESET}(leave blank = auto detect) "))
 data = load(js)
 
 machineid = randomuuid(

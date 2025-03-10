@@ -39,31 +39,49 @@ def path(path: str | pathlib.Path):
     return pathlib.Path(path).resolve()
 
 
-def curbasepath():
+def apppath():
+    def is_valid_apppath(base_path: pathlib.Path):
+        return (base_path / "out" / "main.js").exists()
+
+    def find_cursor_in_path():
+        paths = os.environ.get("PATH", "").split(os.pathsep)
+        for p in paths:
+            try:
+                p = path(p)
+                cursorbin = p / "cursor"  # cursor\resources\app\bin\cursor
+                app = p.parent
+                if cursorbin.exists() and is_valid_apppath(app):
+                    return app
+            except:
+                continue
+        return None
+
     if SYSTEM == "Windows":
         localappdata = os.getenv("LOCALAPPDATA")
-        assert localappdata, "Panicked: LOCALAPPDATA not exist"
-        return path(localappdata) / "Programs" / "cursor" / "resources" / "app"
+        assert localappdata, "Panicked: %LOCALAPPDATA% not exist"
+        default_path = path(localappdata) / "Programs" / "cursor" / "resources" / "app"
+        if is_valid_apppath(default_path):
+            return default_path
+        if cursor_path := find_cursor_in_path():
+            return cursor_path
     elif SYSTEM == "Darwin":
-        return path("/Applications/Cursor.app/Contents/Resources/app")
+        default_path = path("/Applications/Cursor.app/Contents/Resources/app")
+        if is_valid_apppath(default_path):
+            return default_path
+        if cursor_path := find_cursor_in_path():
+            return cursor_path
     elif SYSTEM == "Linux":
-        bases = [
-            path("/opt/Cursor/resources/app"),
-            path("/usr/share/cursor/resources/app"),
-        ]
-        for base in bases:
-            if base.exists():
-                return base
-        print(f"{RED}[ERR] Cursor base path not found, please specify{RESET}")
-        pause()
-        exit()
-    else:
-        assert None
+        # Linux should always extract from appimage
+        pass
+
+    print(f"{RED}[ERR] Cursor not found, please enter main.js path manually!{RESET}")
+    pause()
+    exit()
 
 
 def jspath(p: str):
     if not p:
-        jspath = curbasepath() / "out" / "main.js"
+        jspath = apppath() / "out" / "main.js"
         if not jspath.exists():
             print(f"{RED}[ERR] main.js not found in default path '{jspath}'{RESET}")
             pause()
