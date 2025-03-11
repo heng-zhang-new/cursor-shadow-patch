@@ -159,6 +159,20 @@ def appimage_repack(appimagepath: pathlib.Path, extract_path: pathlib.Path):
     print(f"{GREEN}[√] Removed temporary directory {extract_path}{RESET}")
 
 
+def appimage_detect_jspath(appimage_unpacked: pathlib.Path):
+    jspaths = [
+        "resources/app/out/main.js",
+        "usr/share/cursor/resources/app/out/main.js",
+    ]
+    for p in jspaths:
+        p = appimage_unpacked / p
+        if p.exists():
+            return p
+    print(f"{RED}[ERR] main.js not found in {appimage_unpacked}{RESET}")
+    pause()
+    exit()
+
+
 def apppath():
     def is_valid_apppath(base_path: pathlib.Path):
         return (base_path / "out" / "main.js").exists()

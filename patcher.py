@@ -14,7 +14,7 @@ if SYSTEM == "Linux":
         input(f"\n{PURPLE}Enter AppImage path: {RESET}(leave blank = auto detect) ")
     )
     appimage_unpacked = appimage_unpack(appimage)
-    js = jspath(appimage_unpacked / "resources" / "app" / "out" / "main.js")
+    js = jspath(appimage_detect_jspath(appimage_unpacked))
 else:
     appimage = appimage_unpacked = None
     js = jspath(
