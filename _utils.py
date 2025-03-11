@@ -153,7 +153,10 @@ def appimage_repack(appimagepath: pathlib.Path, extract_path: pathlib.Path):
         print(f"{RED}[ERR] Failed to repack AppImage{RESET}")
         pause()
         exit()
-    print(f"{GREEN}[√] AppImage repacked{RESET}")
+    print(
+        f"{GREEN}[√] AppImage repacked, overwrite {RESET}{appimagepath}\n"
+        f"{GREEN} -- Dont worry, weve already made a backup {RESET}{appimagepath}.bak"
+    )
 
     shutil.rmtree(extract_path)
     print(f"{GREEN}[√] Removed temporary directory {extract_path}{RESET}")
