@@ -2,9 +2,8 @@
 
 Patch `out/main.js` to force fake machine ids.
 
-- Platform: Win32 / Darwin / Linux<br>
-  _(Linux requires manual unpacking and repacking of AppImage; fully automatic version coming soon)_
-- Version: 0.46.11
+- Platform: Win32 / Darwin / Linux
+- Version: 0.47.0
 
 #### Usage
 
