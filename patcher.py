@@ -7,7 +7,19 @@ print(
 - Custom machine id, mac address, etc."""
 )
 
-js = jspath(input(f"\n{PURPLE}Enter main.js path: {RESET}(leave blank = auto detect) "))
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+if SYSTEM == "Linux":
+    appimage = appimagepath(
+        input(f"\n{PURPLE}Enter AppImage path: {RESET}(leave blank = auto detect) ")
+    )
+    appimage_unpacked = appimage_unpack(appimage)
+    js = jspath(appimage_unpacked / "resources" / "app" / "out" / "main.js")
+else:
+    appimage = appimage_unpacked = None
+    js = jspath(
+        input(f"\n{PURPLE}Enter main.js path: {RESET}(leave blank = auto detect) ")
+    )
 data = load(js)
 
 machineid = randomuuid(
@@ -85,4 +97,12 @@ data = replace(
 # Backup and save
 backup(js)
 save(js, data)
+
+# Pack AppImage for Linux
+if SYSTEM == "Linux":
+    assert appimage is not None
+    assert appimage_unpacked is not None
+    backup(appimage)
+    appimage_repack(appimage, appimage_unpacked)
+
 pause()

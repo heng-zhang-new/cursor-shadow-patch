@@ -39,6 +39,126 @@ def path(path: str | pathlib.Path):
     return pathlib.Path(path).resolve()
 
 
+def appimagepath(p: str):
+    assert SYSTEM == "Linux", "Panicked: AppImage is only available on Linux"
+    appimagepath = None
+    if not p:
+        search_paths = [
+            path("/usr/local/bin"),
+            path("/opt"),
+            path("~/Applications").expanduser(),
+            path("~/.local/bin").expanduser(),
+            path("~/Downloads").expanduser(),
+            path("~/Desktop").expanduser(),
+            path("~").expanduser(),
+            path("."),
+        ]
+        paths = os.environ.get("PATH", "").split(os.pathsep)
+        for p in paths:
+            try:
+                search_paths.append(path(p))
+            except:
+                continue
+        for search_path in search_paths:
+            if not search_path.exists() or not search_path.is_dir():
+                continue
+            try:
+                for file in search_path.iterdir():
+                    if not file.is_file():
+                        continue
+                    name = file.name.lower()
+                    if (
+                        name.startswith("cursor")
+                        and not name[6:7].isalpha()
+                        and name.endswith(".appimage")
+                    ):
+                        appimagepath = file
+                        break
+            except:
+                continue
+        if not appimagepath:
+            print(
+                f"{RED}[ERR] Cursor AppImage not found, please enter AppImage path manually{RESET}"
+            )
+            pause()
+            exit()
+    else:
+        appimagepath = path(p)
+        if not appimagepath.exists():
+            print(f"{RED}[ERR] AppImage '{appimagepath}' not found{RESET}")
+            pause()
+            exit()
+    print(f"{GREEN}[√]{RESET} {appimagepath}")
+    return appimagepath
+
+
+def appimage_unpack(appimagepath: pathlib.Path):
+    assert SYSTEM == "Linux", "Panicked: AppImage is only available on Linux"
+    if appimagepath.parent != path("."):
+        shutil.copy2(appimagepath, path("."))
+    appimage = path(".") / appimagepath.name
+    squashfs = path(".") / "squashfs-root"
+    os.system(f"chmod +x {appimage}")
+    errorlevel = os.system(f"{appimage} --appimage-extract")
+    if errorlevel != 0:
+        print(f"{RED}[ERR] Failed to unpack AppImage{RESET}")
+        pause()
+        exit()
+    if appimagepath.parent != path("."):
+        os.remove(appimage)
+    print(f"{GREEN}[√] AppImage unpacked -> {squashfs}{RESET}")
+    return squashfs
+
+
+def appimage_repack(appimagepath: pathlib.Path, extract_path: pathlib.Path):
+    assert SYSTEM == "Linux", "Panicked: AppImage is only available on Linux"
+    print(f"\n> Repacking AppImage")
+    if not shutil.which("wget"):
+        print(f"{RED}[ERR] Please install wget first{RESET}")
+        pause()
+        exit()
+    appimagetool = path(".") / "appimagetool"
+    appimagetool_downloading = path(".") / "appimagetool_downloading"
+    if appimagetool_downloading.exists():
+        os.remove(appimagetool_downloading)
+    if not appimagetool.exists():
+        print(f"{YELLOW}[WARN] appimagetool not found{RESET}")
+        download = input(f"{PURPLE}Download appimagetool? (Y/n): {RESET}").lower()
+        if download != "n":
+            print(f"{BLUE}[i] Downloading appimagetool...{RESET}")
+            errorlevel = os.system(
+                f"wget https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage -O {appimagetool_downloading}"
+            )
+            if errorlevel != 0:
+                print(
+                    f"{RED}[ERR] Download failed, you can manually download and save it to ./appimagetool\n"
+                    f"Link: {RESET}https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+                )
+                os.remove(appimagetool_downloading)
+                pause()
+                exit()
+            os.system(f"chmod +x {appimagetool_downloading}")
+            os.rename(appimagetool_downloading, appimagetool)
+            print(f"{GREEN}[√] Appimagetool downloaded{RESET}")
+        else:
+            print(
+                f"{RED}[ERR] So please download appimagetool and put it to ./appimagetool to continue\n"
+                f"Link: {RESET}https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
+            )
+            pause()
+            exit()
+
+    errorlevel = os.system(f"{appimagetool} {extract_path} {appimagepath}")
+    if errorlevel != 0:
+        print(f"{RED}[ERR] Failed to repack AppImage{RESET}")
+        pause()
+        exit()
+    print(f"{GREEN}[√] AppImage repacked{RESET}")
+
+    shutil.rmtree(extract_path)
+    print(f"{GREEN}[√] Removed temporary directory {extract_path}{RESET}")
+
+
 def apppath():
     def is_valid_apppath(base_path: pathlib.Path):
         return (base_path / "out" / "main.js").exists()
@@ -74,12 +194,12 @@ def apppath():
         # Linux should always extract from appimage
         pass
 
-    print(f"{RED}[ERR] Cursor not found, please enter main.js path manually!{RESET}")
+    print(f"{RED}[ERR] Cursor not found, please enter main.js path manually{RESET}")
     pause()
     exit()
 
 
-def jspath(p: str):
+def jspath(p: str | pathlib.Path):
     if not p:
         jspath = apppath() / "out" / "main.js"
         if not jspath.exists():
