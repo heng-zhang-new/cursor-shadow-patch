@@ -36,6 +36,8 @@ def uuid():
 
 
 def path(path: str | pathlib.Path):
+    if isinstance(path, str):
+        path = path.strip().strip("'\"")
     return pathlib.Path(path).resolve()
 
 
