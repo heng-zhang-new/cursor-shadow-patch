@@ -178,6 +178,55 @@ def appimage_detect_jspath(appimage_unpacked: pathlib.Path):
     exit()
 
 
+def appbundle_movetmp(appbundle: pathlib.Path):
+    assert SYSTEM == "Darwin", "Panicked: App Bundle is only available on macOS"
+    assert appbundle.exists(), f"App Bundle '{appbundle}' not found"
+    appbundle_tmp = appbundle.parent / (appbundle.name + ".tmp")
+    if appbundle_tmp.exists():
+        shutil.rmtree(appbundle_tmp)
+    shutil.copytree(appbundle, appbundle_tmp, symlinks=True)
+    print(f"{GREEN}[√] App Bundle moved to {appbundle_tmp}{RESET}")
+    return appbundle_tmp
+
+
+def appbundle_moveback(appbundle_tmp: pathlib.Path, appbundle: pathlib.Path):
+    assert SYSTEM == "Darwin", "Panicked: App Bundle is only available on macOS"
+    assert appbundle_tmp.exists(), f"App Bundle '{appbundle_tmp}' not found"
+    if appbundle.exists():
+        shutil.rmtree(appbundle)
+    shutil.move(appbundle_tmp, appbundle)
+    print(f"{GREEN}[√] App Bundle moved back to {appbundle}{RESET}")
+
+
+def appbundle_unsign(appbundle: pathlib.Path):
+    assert SYSTEM == "Darwin", "Panicked: App Bundle is only available on macOS"
+    errorlevel = os.system(f"codesign --remove-signature {appbundle}")
+    if errorlevel != 0:
+        print(f"{RED}[ERR] Failed to unsign App Bundle{RESET}")
+        pause()
+        exit()
+    print(f"{GREEN}[√] App Bundle unsigned{RESET}")
+
+
+def appbundle_sign(appbundle: pathlib.Path):
+    assert SYSTEM == "Darwin", "Panicked: App Bundle is only available on macOS"
+    errorlevel = os.system(f"codesign --force --deep --sign - {appbundle}")
+    if errorlevel != 0:
+        print(f"{RED}[ERR] Failed to sign App Bundle{RESET}")
+        pause()
+        exit()
+    print(f"{GREEN}[√] App Bundle signed{RESET}")
+
+
+def appbundle_from_jspath(jspath: pathlib.Path):
+    # /Applications/Cursor.app/Contents/Resources/app/out/main.js
+    return jspath.parent.parent.parent.parent.parent
+
+
+def appbundle_to_jspath(appbundle: pathlib.Path):
+    return appbundle / "Contents" / "Resources" / "app" / "out" / "main.js"
+
+
 def apppath():
     def is_valid_apppath(base_path: pathlib.Path):
         return (base_path / "out" / "main.js").exists()

@@ -95,9 +95,26 @@ data = replace(
     r"return/\*csp4\*/.*?/\*4csp\*/",
 )
 
+# Preprocess App Bundle for macOS
+if SYSTEM == "Darwin":
+    appbundle = appbundle_from_jspath(js)
+    backup(appbundle, not is_patched)
+    appbundle_tmp = appbundle_movetmp(appbundle)
+    appbundle_unsign(appbundle_tmp)
+    js = appbundle_to_jspath(appbundle_tmp)
+else:
+    appbundle = appbundle_tmp = None
+
 # Backup and save
 backup(js, not is_patched)
 save(js, data)
+
+# Postprocess App Bundle for macOS
+if SYSTEM == "Darwin":
+    assert appbundle is not None
+    assert appbundle_tmp is not None
+    appbundle_sign(appbundle_tmp)
+    appbundle_moveback(appbundle_tmp, appbundle)
 
 # Pack AppImage for Linux
 if SYSTEM == "Linux":
