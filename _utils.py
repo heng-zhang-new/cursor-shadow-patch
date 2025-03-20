@@ -273,12 +273,19 @@ def save(path: pathlib.Path, data: bytes):
         exit()
 
 
-def backup(path: pathlib.Path):
+def chk(data: bytes, probes: list[bytes]) -> bool:
+    return any(probe in data for probe in probes)
+
+
+def backup(path: pathlib.Path, force: bool = False):
     print(f"\n> Backing up '{path.name}'")
     bakfile = path.with_name(path.name + ".bak")
     if not os.path.exists(bakfile):
         shutil.copy2(path, bakfile)
         print(f"{GREEN}[√] Backup created: '{bakfile.name}'{RESET}")
+    elif force:
+        shutil.copy2(path, bakfile)
+        print(f"{GREEN}[√] Backup updated: '{bakfile.name}'{RESET}")
     else:
         print(f"{BLUE}[i] Backup '{bakfile.name}' already exists, good{RESET}")
 

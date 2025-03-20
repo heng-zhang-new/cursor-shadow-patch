@@ -21,6 +21,7 @@ else:
         input(f"\n{PURPLE}Enter main.js path: {RESET}(leave blank = auto detect) ")
     )
 data = load(js)
+is_patched = chk(data, [b"/*csp1*/", b"/*csp2*/", b"/*csp3*/", b"/*csp4*/"])
 
 machineid = randomuuid(
     input(f"\n{PURPLE}MachineId: {RESET}(leave blank = random uuid) ")
@@ -95,14 +96,14 @@ data = replace(
 )
 
 # Backup and save
-backup(js)
+backup(js, not is_patched)
 save(js, data)
 
 # Pack AppImage for Linux
 if SYSTEM == "Linux":
     assert appimage is not None
     assert appimage_unpacked is not None
-    backup(appimage)
+    backup(appimage, not is_patched)
     appimage_repack(appimage, appimage_unpacked)
 
 pause()
