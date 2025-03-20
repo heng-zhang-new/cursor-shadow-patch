@@ -279,15 +279,22 @@ def chk(data: bytes, probes: list[bytes]) -> bool:
 
 def backup(path: pathlib.Path, force: bool = False):
     print(f"\n> Backing up '{path.name}'")
-    bakfile = path.with_name(path.name + ".bak")
-    if not os.path.exists(bakfile):
-        shutil.copy2(path, bakfile)
-        print(f"{GREEN}[√] Backup created: '{bakfile.name}'{RESET}")
+    bak = path.with_name(path.name + ".bak")
+    if not os.path.exists(bak):
+        if path.is_dir():
+            shutil.copytree(path, bak, symlinks=True)
+        else:
+            shutil.copy2(path, bak)
+        print(f"{GREEN}[√] Backup created: '{bak.name}'{RESET}")
     elif force:
-        shutil.copy2(path, bakfile)
-        print(f"{GREEN}[√] Backup updated: '{bakfile.name}'{RESET}")
+        if path.is_dir():
+            shutil.rmtree(bak)
+            shutil.copytree(path, bak, symlinks=True)
+        else:
+            shutil.copy2(path, bak)
+        print(f"{GREEN}[√] Backup updated: '{bak.name}'{RESET}")
     else:
-        print(f"{BLUE}[i] Backup '{bakfile.name}' already exists, good{RESET}")
+        print(f"{BLUE}[i] Backup '{bak.name}' already exists, good{RESET}")
 
 
 def replace(
