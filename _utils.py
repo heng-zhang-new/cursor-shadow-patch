@@ -5,6 +5,7 @@ import shutil
 import pathlib
 import platform
 from uuid import uuid4
+from stat import S_IWRITE
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -39,6 +40,13 @@ def path(path: str | pathlib.Path):
     if isinstance(path, str):
         path = path.strip().strip("'\"")
     return pathlib.Path(path).resolve()
+
+
+def remove_readonly(path: pathlib.Path):
+    try:
+        os.chmod(path, S_IWRITE)
+    except:
+        pass
 
 
 def appimagepath(p: str):

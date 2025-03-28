@@ -105,6 +105,11 @@ if SYSTEM == "Darwin":
 else:
     appbundle = appbundle_tmp = None
 
+# Try to fix permissions for Windows
+if SYSTEM == "Windows":
+    remove_readonly(js.parent)
+    remove_readonly(js)
+
 # Backup and save
 backup(js, not is_patched)
 save(js, data)
