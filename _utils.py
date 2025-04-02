@@ -6,6 +6,7 @@ import pathlib
 import platform
 from uuid import uuid4
 from stat import S_IWRITE
+from typing import Union, List
 
 GREEN = "\033[92m"
 RED = "\033[91m"
@@ -36,7 +37,7 @@ def uuid():
     return str(uuid4())
 
 
-def path(path: str | pathlib.Path):
+def path(path: Union[str, pathlib.Path]):
     if isinstance(path, str):
         path = path.strip().strip("'\"")
     return pathlib.Path(path).resolve()
@@ -275,7 +276,7 @@ def apppath():
     exit()
 
 
-def jspath(p: str | pathlib.Path):
+def jspath(p: Union[str, pathlib.Path]):
     if not p:
         jspath = apppath() / "out" / "main.js"
         if not jspath.exists():
@@ -330,7 +331,7 @@ def save(path: pathlib.Path, data: bytes):
         exit()
 
 
-def chk(data: bytes, probes: list[bytes]) -> bool:
+def chk(data: bytes, probes: List[bytes]) -> bool:
     return any(probe in data for probe in probes)
 
 
@@ -355,7 +356,7 @@ def backup(path: pathlib.Path, force: bool = False):
 
 
 def replace(
-    data: bytes, pattern: str | bytes, replace: str | bytes, probe: str | bytes
+    data: bytes, pattern: Union[str, bytes], replace: Union[str, bytes], probe: Union[str, bytes]
 ) -> bytes:
     if isinstance(pattern, str):
         pattern = pattern.encode()

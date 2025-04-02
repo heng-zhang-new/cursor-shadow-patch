@@ -4,7 +4,7 @@ Patch `out/main.js` to force diffferent machine ids.
 
 **Disclaimer: This tool is intended solely to fix issues preventing you from using your own Cursor account due to internal machine ID retrieval problems. It must not be used for automated account registration or trials. Please do not violate Cursor's terms of service.**
 
-- Platform: Win32 / Darwin / Linux, with Python 3.10+
+- Platform: Win32 / Darwin / Linux, with Python 3.6+
 - Version: 0.48.2
 
 #### Usage
